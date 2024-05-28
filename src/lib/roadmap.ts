@@ -1,5 +1,18 @@
 import type { MarkdownFileType } from './file';
 
+export function resourceTitleFromId(id: string): string {
+  if (id === 'devops') {
+    return 'DevOps';
+  }
+
+  return id
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+export type AllowedRoadmapRenderer = 'balsamiq' | 'editor';
+
 export interface RoadmapFrontmatter {
   pdfUrl: string;
   order: number;
@@ -42,6 +55,7 @@ export interface RoadmapFrontmatter {
     changefreq: string;
   };
   tags: string[];
+  renderer?: AllowedRoadmapRenderer;
 }
 
 export type RoadmapFileType = MarkdownFileType<RoadmapFrontmatter> & {
@@ -127,4 +141,12 @@ export async function getRoadmapsByIds(
   }
 
   return Promise.all(ids.map((id) => getRoadmapById(id)));
+}
+
+export async function getRoadmapFaqsById(roadmapId: string): Promise<string[]> {
+  const { faqs } = await import(
+    `../data/roadmaps/${roadmapId}/faqs.astro`
+  ).catch(() => ({}));
+
+  return faqs || [];
 }
